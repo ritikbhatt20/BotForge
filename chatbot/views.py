@@ -4,10 +4,11 @@ import openai
 
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.models import User
+from django.contrib import messages
 
 # Create your views here.
 
-openai_api_key = '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'
+openai_api_key = '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'
 openai.api_key = openai_api_key
 
 def ask_openai(message):
@@ -33,8 +34,16 @@ def login_user(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-
-    return render(request, 'login.html')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:                                
+            login(request, user)
+            messages.success(request, "You have been Logged In!")
+            return redirect('chatbot')
+        else:
+            error_message = "Invalid username or password"
+            return render(request, 'login.html', {'error_message': error_message})
+    else:
+        return render(request, 'login.html')
 
 def register(request):
     if request.method == 'POST':
@@ -49,7 +58,7 @@ def register(request):
                 user.save()
                 login(request, user)
                 return redirect('chatbot')
-            except Exception as e:
+            except Exception as e:                          
                 print(e)
                 error_message = "Error creating account"
                 return render(request, 'register.html', {'error_message': error_message})
@@ -59,4 +68,5 @@ def register(request):
     return render(request, 'register.html')
 
 def logout_user(request):
-    return logout(request)
+    logout(request)
+    return redirect('chatbot')
