@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 openai = "==0.28"
 django = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

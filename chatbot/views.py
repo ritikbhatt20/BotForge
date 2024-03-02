@@ -5,10 +5,15 @@ import openai
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.models import User
 from django.contrib import messages
+from .models import Chat
+import os
+from dotenv import load_dotenv
 
 # Create your views here.
 
-openai_api_key = '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'
+load_dotenv()
+
+openai_api_key = os.getenv("OPENAI_API_KEY")
 openai.api_key = openai_api_key
 
 def ask_openai(message):
