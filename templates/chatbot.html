@@ -140,7 +140,7 @@
   const messageInput = document.querySelector('.message-input');
 
   messageForm.addEventListener('submit', (event) => {
-    event.preventDefault();
+    event.preventDefault();  //prevents the page to refresh
 
     const message = messageInput.value.trim();
     if (message.length === 0) {
