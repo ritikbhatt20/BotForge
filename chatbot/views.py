@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.http import JsonResponse
 import openai
 
@@ -8,6 +8,9 @@ from django.contrib import messages
 from .models import Chat
 import os
 from dotenv import load_dotenv
+
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -30,10 +33,23 @@ def ask_openai(message):
 
 def chatbot(request):
     if request.method == 'POST':
-        message = request.POST.get('message')
-        response = ask_openai(message)
-        return JsonResponse({'message': message, 'response': response})
-    return render(request, 'chatbot.html')
+        if request.user.is_authenticated:
+            chats = Chat.objects.filter(user=request.user)
+            message = request.POST.get('message')
+            response = ask_openai(message)
+            
+            chat = Chat(user=request.user, message=message, response=response, created_at=timezone.now())
+            chat.save()
+            return JsonResponse({'message': message, 'response': response})
+        else:
+            messages.success("You need to login")
+            return render(request, 'chatbot.html')
+    else:
+        if request.user.is_authenticated:
+            chats = Chat.objects.filter(user=request.user)
+            return render(request, 'chatbot.html', {'chats': chats})
+        else:
+            return render(request, 'chatbot.html')
 
 def login_user(request):
     if request.method == 'POST':
